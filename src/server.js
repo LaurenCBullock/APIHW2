@@ -12,9 +12,9 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
   // if post is to /addUser (our only POST url)
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/addImage') {
     const res = response;
-
+      
     // uploads come in as a byte stream that we need
     // to reassemble once it's all arrived
     const body = [];
@@ -42,9 +42,9 @@ const handlePost = (request, response, parsedUrl) => {
       // the format will be the same as querystrings
       // Parse the string into an object by field name
       const bodyParams = query.parse(bodyString);
-
+        //console.log(bodyParams);
       // pass to our addUser function
-      jsonHandler.addUser(request, res, bodyParams);
+      jsonHandler.addImage(request, res, bodyParams);
     });
   }
 };
@@ -60,9 +60,10 @@ const handleGet = (request, response, parsedUrl) => {
       } else if (parsedUrl.pathname === '/style.css') {
         // if stylesheet, send stylesheet
         htmlHandler.getCSS(request, response);
-      } else if (parsedUrl.pathname === '/getUsers') {
+      
+      } else if (parsedUrl.pathname === '/getImages') {
         // if get users, send user object back
-        jsonHandler.getUsers(request, response);
+        jsonHandler.getImages(request, response);
       } else if (parsedUrl.pathname === '/updateUser') {
         // if update user, change our user object
         jsonHandler.updateUser(request, response);

@@ -20,7 +20,7 @@ const respondJSONMeta = (request, response, status) => {
 };
 
 // return user object as JSON
-const getUsers = (request, response) => {
+const getImages = (request, response) => {
   const responseJSON = {
     users,
   };
@@ -32,17 +32,17 @@ const getUsers = (request, response) => {
 const getUsersMeta = (request, response) => { respondJSONMeta(request, response, 200); };
 
 // function to add a user from a POST body
-const addUser = (request, response, body) => {
+const addImage = (request, response, body) => {
   // default json message
   const responseJSON = {
-    message: 'Name and age are both required.',
+    message: body.name + body.url + body.desc,
   };
 
   // check to make sure we have both fields
   // We might want more validation than just checking if they exist
   // This could easily be abused with invalid types (such as booleans, numbers, etc)
   // If either are missing, send back an error message as a 400 badRequest
-  if (!body.name || !body.age) {
+  if (!body.name || !body.url || !body.desc) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
@@ -61,12 +61,15 @@ const addUser = (request, response, body) => {
 
   // add or update fields for this user name
   users[body.name].name = body.name;
-  users[body.name].age = body.age;
+  users[body.name].url = body.url;
+  users[body.name].desc = body.desc;
+    
+    //console.log([body.name] +[body.url]+[body.desc]);
 
   // if response is created, then set our created message
   // and sent response with a message
   if (responseCode === 201) {
-    responseJSON.message = 'Created Successfully';
+    responseJSON.message = 'Saved Image and Description: ' + body.name + " " +body.url + " " + body.desc;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   // 204 has an empty payload, just a success
@@ -94,9 +97,9 @@ const notFoundMeta = (request, response) => {
 
 // public exports
 module.exports = {
-  getUsers,
+  getImages,
   getUsersMeta,
-  addUser,
+  addImage,
   notFound,
   notFoundMeta,
 

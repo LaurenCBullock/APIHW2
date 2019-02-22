@@ -10,21 +10,43 @@
   const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
       const obj = JSON.parse(xhr.response);
-      console.dir(obj);
+      //console.dir(obj);
       
       //if message in response, add to screen
       if(obj.message) {
-        const p = document.createElement('p');
+        const p = document.createElement('b');
         p.textContent = `Message: ${obj.message}`;
         content.appendChild(p);
       }
       
       //if users in response, add to screen
       if(obj.users) {
-        const userList = document.createElement('p');
-        const users = JSON.stringify(obj.users);
-        userList.textContent = users;
-        content.appendChild(userList);
+        
+        //const users = JSON.stringify(obj.users);
+        const imageList = document.createElement('p');
+        
+          
+        for (var key in obj.users) {
+          if (obj.users.hasOwnProperty(key)) {
+              const thisBlock = document.createElement('p');
+            console.dir(obj.users[key].desc);
+              const name = document.createElement('b');
+              const url = document.createElement('img');
+              const desc = document.createElement('p');
+              name.textContent= obj.users[key].name;
+              url.src = obj.users[key].url;
+              desc.textContent = obj.users[key].desc;
+              
+              thisBlock.appendChild(name);
+              thisBlock.appendChild(url);
+              thisBlock.appendChild(desc);
+              imageList.appendChild(thisBlock);
+              thisBlock.setAttribute("id", "imageblock");
+              //imageList.textContent = `<b>${obj.users[key].name}</b><img src=${obj.users[key].url}><p>${obj.users[key].desc}</p>`;
+            content.appendChild(imageList);
+          }
+        }
+          
       }
     };
 
@@ -62,16 +84,20 @@
     };
 
     //function to send our post request
+    //Storing images in memory
     const sendPost = (e, nameForm) => {
       //grab the forms action (url to go to)
       //and method (HTTP method - POST in this case)
+        
       const nameAction = nameForm.getAttribute('action');
       const nameMethod = nameForm.getAttribute('method');
       
       //grab the form's name and age fields so we can check user input
       const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+      const urlField = nameForm.querySelector('#imageUrlField');
+      const descField = nameForm.querySelector('#descriptionField');
       
+        //console.log("sent" + `name=${nameField.value}&url=${urlField.value}&desc=${descField.value}`);
       //create a new Ajax request (remember this is asynchronous)
       const xhr = new XMLHttpRequest();
       //set the method (POST) and url (action field from form)
@@ -96,8 +122,8 @@
       //So ours might look like  name=test&age=22
       //Again the 'name' fields in the form are the variable names in the string
       //and the variable names the server will look for.
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
-      
+      const formData = `name=${nameField.value}&url=${urlField.value}&desc=${descField.value}`;
+      console.dir(formData);
       //send our request with the data
       xhr.send(formData);
     
@@ -150,18 +176,18 @@ const requestUpdate = (e, userForm) => {
 
     const init = () => {
       //grab form
-      const nameForm = document.querySelector('#nameForm');
-      const userForm = document.querySelector('#userForm');
+      const imageForm = document.querySelector('#imageForm');
+      const requestForm = document.querySelector('#imageRequestForm');
         
         //console.log(selectForm);
       
       //create handler
-      const addUser = (e) => sendPost(e, nameForm);
-      const viewUsers = (e) => requestUpdate(e, userForm);
+      const addImage = (e) => sendPost(e, imageForm);
+      const viewImage = (e) => requestUpdate(e, requestForm);
       
       //attach submit event (for clicking submit or hitting enter)
-      nameForm.addEventListener('submit', addUser);
-      userForm.addEventListener('submit', viewUsers);
+      imageForm.addEventListener('submit', addImage);
+      requestForm.addEventListener('submit', viewImage);
     };
 
     window.onload = init;
@@ -171,24 +197,26 @@ const requestUpdate = (e, userForm) => {
 </head>
 <body>
   <section id="top">
-    <h3>POST Status Code Tests</h3>
-    <form id="nameForm" action="/addUser" method="post">
+    <h1>Share Your Favorite Image</h1>
+    <form id="imageForm" action="/addImage" method="post">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
+      <label for="imageUrl">Image URL: </label>
+      <input id="imageUrlField" type="text" name="url"/>
+      <label for="description">Description: </label>
+      <input id="descriptionField" type="text" name="description" />
+      <input type="submit" value="Add Post" />
     </form>
-    <form id="userForm" action="/getUsers" method="get">
+    <form id="imageRequestForm" action="/getImage" method="get">
       <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
+        <option value='/getImages'>/getImages</option>
         <option value='/notReal'>/notReal</option>
       </select>
       <select id="methodSelect">
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <input type="submit" value="Get User" />
+      <input id="imgSubButt" type="submit" value="Get User" />
     </form>
   </section>
   <section id="content">
