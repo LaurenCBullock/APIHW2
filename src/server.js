@@ -14,7 +14,7 @@ const handlePost = (request, response, parsedUrl) => {
   // if post is to /addUser (our only POST url)
   if (parsedUrl.pathname === '/addImage') {
     const res = response;
-      
+
     // uploads come in as a byte stream that we need
     // to reassemble once it's all arrived
     const body = [];
@@ -42,9 +42,50 @@ const handlePost = (request, response, parsedUrl) => {
       // the format will be the same as querystrings
       // Parse the string into an object by field name
       const bodyParams = query.parse(bodyString);
-        //console.log(bodyParams);
+      // console.log(bodyParams);
       // pass to our addUser function
       jsonHandler.addImage(request, res, bodyParams);
+    });
+  }
+};
+
+
+const handlePostComment = (request, response, parsedUrl) => {
+  console.log('Handling post Comment');
+  // if post is to /addUser (our only POST url)
+  if (parsedUrl.pathname === '/addComment') {
+    const res = response;
+
+    // uploads come in as a byte stream that we need
+    // to reassemble once it's all arrived
+    const body = [];
+
+    // if the upload stream errors out, just throw a
+    // a bad request and send it back
+    request.on('error', (err) => {
+      console.dir(err);
+      res.statusCode = 400;
+      res.end();
+    });
+
+    // on 'data' is for each byte of data that comes in
+    // from the upload. We will add it to our byte array.
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    });
+
+    // on end of upload stream.
+    request.on('end', () => {
+      // combine our byte array (using Buffer.concat)
+      // and convert it to a string value (in this instance)
+      const bodyString = Buffer.concat(body).toString();
+      // since we are getting x-www-form-urlencoded data
+      // the format will be the same as querystrings
+      // Parse the string into an object by field name
+      const bodyParams = query.parse(bodyString);
+      // console.log(bodyParams);
+      // pass to our addUser function
+      jsonHandler.addComment(request, res, bodyParams);
     });
   }
 };
@@ -60,7 +101,6 @@ const handleGet = (request, response, parsedUrl) => {
       } else if (parsedUrl.pathname === '/style.css') {
         // if stylesheet, send stylesheet
         htmlHandler.getCSS(request, response);
-      
       } else if (parsedUrl.pathname === '/getImages') {
         // if get users, send user object back
         jsonHandler.getImages(request, response);
@@ -94,8 +134,16 @@ const onRequest = (request, response) => {
 
   // check if method was POST, otherwise assume GET
   // for the sake of this example
+
   if (request.method === 'POST') {
-    handlePost(request, response, parsedUrl);
+    if (parsedUrl.pathname === '/addComment') {
+      console.log('adding comment');
+      handlePostComment(request, response, parsedUrl);
+      // console.log(parsedUrl);
+    } else {
+      console.log('posting image');
+      handlePost(request, response, parsedUrl);
+    }
   } else {
     handleGet(request, response, parsedUrl);
   }
